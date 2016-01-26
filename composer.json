@@ -1,0 +1,14 @@
+{
+    "name": "pangou/fifo",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "chenchun0629",
+            "email": "pangou@live.cn"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": { "Pangou\\fifo\\": "src" }
+    }
+}
