@@ -5,8 +5,6 @@ namespace Pangou\Fifo;
 
 class Fifo 
 {
-
-
     /**
      * fifo name
      * @var [type]
@@ -37,24 +35,24 @@ class Fifo
      * @param [type] $mode The second parameter mode has to be given in octal notation (e.g. 0644). 
      */
     public function __construct($name, $mode, $isRead) {
-        if (true !== posix_mkfifo($name, $mode)) {
+        if (!file_exists($name) && true !== posix_mkfifo($name, $mode)) {
             throw new \Exception('create fifo fail');
         }
 
+        $this -> name   = $name;
+        $this -> mode   = $mode;
+        $this -> isRead = $isRead;
+
         if ($isRead) {
-            $this -> fp = fopen($this->filename, 'r+');
+            $this -> fp = fopen($this -> name, 'r+');
         } else {
-            $this -> fp = fopen($this->filename, 'w+');
+            $this -> fp = fopen($this -> name, 'w+');
         }
 
         if (!is_resource($this -> fp)) {
             throw new \Exception("open fifo error");
         }
 
-
-        $this -> name   = $name;
-        $this -> mode   = $mode;
-        $this -> isRead = $isRead;
     }
 
     /**
@@ -63,18 +61,18 @@ class Fifo
      * @return [type]       [description]
      */
     public function read($len = 1024) {
-        $if (!$isRead) {
+        if (!$this -> isRead) {
             return false;
         }
-        return fread($this -> fd, $size);
+        return fread($this -> fp, $len);
     }
 
     /**
      * write msg
      * @return [type] [description]
      */
-    public function wirte($msg) {
-        if ($isRead) {
+    public function write($msg) {
+        if ($this -> isRead) {
             return false;
         }
         return fwrite($this -> fp, $msg);
