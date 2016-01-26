@@ -54,7 +54,7 @@ class Fifo
 
         $this -> name   = $name;
         $this -> mode   = $mode;
-        $this -> isRead = $isRead
+        $this -> isRead = $isRead;
     }
 
     /**
