@@ -2,7 +2,6 @@
 
 namespace Pangou\Fifo;
 
-
 class Fifo 
 {
     /**
@@ -34,10 +33,11 @@ class Fifo
      * @param [type] $name Path to the FIFO file.
      * @param [type] $mode The second parameter mode has to be given in octal notation (e.g. 0644). 
      */
-    public function __construct($name, $mode, $isRead) {
-        $this -> name   = $name;
-        $this -> mode   = $mode;
-        $this -> isRead = $isRead;
+    public function __construct(Protocol\iProtocol $protocol, $name, $mode, $isRead) {
+        $this -> name     = $name;
+        $this -> mode     = $mode;
+        $this -> isRead   = $isRead;
+        $this -> protocol = $protocol;
 
 
         $this -> createFifo();
@@ -75,26 +75,26 @@ class Fifo
     }
 
     /**
-     * read msg
+     * read message
      * @param  integer $len [description]
      * @return [type]       [description]
      */
-    public function read($len = 1024) {
+    public function read() {
         if (!$this -> isRead) {
             return false;
         }
-        return fread($this -> fp, $len);
+        return $this -> protocol -> read($this -> fp);
     }
 
     /**
-     * write msg
+     * write message
      * @return [type] [description]
      */
-    public function write($msg) {
+    public function write($message) {
         if ($this -> isRead) {
             return false;
         }
-        return fwrite($this -> fp, $msg);
+        return $this -> protocol -> wirte($this -> fp, $message);
     }
 
     /**
