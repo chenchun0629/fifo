@@ -35,15 +35,15 @@ class Fifo
      * @param [type] $mode The second parameter mode has to be given in octal notation (e.g. 0644). 
      */
     public function __construct($name, $mode, $isRead) {
-        if (!file_exists($name) && true !== posix_mkfifo($name, $mode)) {
-            throw new \Exception('create fifo fail');
-        }
-
         $this -> name   = $name;
         $this -> mode   = $mode;
         $this -> isRead = $isRead;
 
-        if ($isRead) {
+
+        $this -> createFifo();
+
+
+        if ($this -> isRead) {
             $this -> fp = fopen($this -> name, 'r+');
         } else {
             $this -> fp = fopen($this -> name, 'w+');
@@ -53,6 +53,25 @@ class Fifo
             throw new \Exception("open fifo error");
         }
 
+    }
+
+    /**
+     * 创建fifo
+     * @return [type] [description]
+     */
+    protected function createFifo() {
+        if (file_exists($this -> name) && filetype($this -> name) != 'fifo') {
+            copy($this -> name, $this -> name . '.backup');
+            unlink($this -> name);
+        }
+
+        if (!file_exists($this -> name) && true !== posix_mkfifo($this -> name, $this -> mode)) {
+            throw new \Exception('create fifo fail');
+        }
+
+        if (filetype($this -> name) != 'fifo') {
+            throw new \Exception('fifo type error');
+        }
     }
 
     /**
