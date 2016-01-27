@@ -1,5 +1,7 @@
 <?php 
 
+exit('discard');
+
 require __DIR__ . '/../vendor/autoload.php';
 
 
