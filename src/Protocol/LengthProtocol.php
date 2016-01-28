@@ -23,11 +23,11 @@ class LengthProtocol implements iProtocol
 
     /**
      * 写
-     * @param  [type] $fp      [description]
+     * @param  [type] $fd      [description]
      * @param  [type] $message [description]
      * @return [type]          [description]
      */
-    public function wirte($fp, $message) {
+    public function wirte($fd, $message) {
         $len = strlen($message);
         if ($len > $this -> maxLength) {
             return false;
@@ -35,16 +35,16 @@ class LengthProtocol implements iProtocol
 
         $len = str_pad($len, $this -> bit, '0', STR_PAD_LEFT);
 
-        return fwrite($fp, $len.$message);
+        return fwrite($fd, $len.$message);
     }
 
     /**
      * 读
-     * @param  [type] $fp [description]
+     * @param  [type] $fd [description]
      * @return [type]     [description]
      */
-    public function read($fp) {
-        $len = fread($fp, $this -> bit);
+    public function read($fd) {
+        $len = fread($fd, $this -> bit);
         if (empty($len)) {
             return false;
         }
@@ -52,7 +52,7 @@ class LengthProtocol implements iProtocol
         $str = '';
         while (strlen($str) < $len) {
             $readLength = ($len - strlen($str)) > 1024 ? 1024 : ($len - strlen($str));
-            $str .= fread($fp, $readLength);
+            $str .= fread($fd, $readLength);
         }
 
         return $str;

@@ -26,30 +26,35 @@ class Fifo
      * fifo 文件描述符
      * @var [type]
      */
-    protected $fp;
+    protected $fd;
+
+    /**
+     * 是否阻塞
+     * @var [type]
+     */
+    protected $isBlock;
 
     /**
      * [__construct description]
      * @param [type] $name Path to the FIFO file.
      * @param [type] $mode The second parameter mode has to be given in octal notation (e.g. 0644). 
      */
-    public function __construct(Protocol\iProtocol $protocol, $name, $mode, $isRead) {
+    public function __construct(Protocol\iProtocol $protocol, $name, $mode, $isRead, $isBlock = 1) {
         $this -> name     = $name;
         $this -> mode     = $mode;
         $this -> isRead   = $isRead;
+        $this -> isBlock  = $isBlock;
         $this -> protocol = $protocol;
-
 
         $this -> createFifo();
 
-
         if ($this -> isRead) {
-            $this -> fp = fopen($this -> name, 'r+');
+            $this -> fd = fopen($this -> name, 'r+');
         } else {
-            $this -> fp = fopen($this -> name, 'w+');
+            $this -> fd = fopen($this -> name, 'w+');
         }
 
-        if (!is_resource($this -> fp)) {
+        if (!is_resource($this -> fd)) {
             throw new \Exception("open fifo error");
         }
 
@@ -83,7 +88,7 @@ class Fifo
         if (!$this -> isRead) {
             return false;
         }
-        return $this -> protocol -> read($this -> fp);
+        return $this -> protocol -> read($this -> fd);
     }
 
     /**
@@ -94,7 +99,23 @@ class Fifo
         if ($this -> isRead) {
             return false;
         }
-        return $this -> protocol -> wirte($this -> fp, $message);
+        return $this -> protocol -> wirte($this -> fd, $message);
+    }
+
+    /**
+     * 设置是否阻塞
+     * @param [type] $isBlock [description]
+     */
+    public function setBlock($isBlock) {
+        if ($isBlock == $this -> isBlock) {
+            return true;
+        }
+
+        if (stream_set_blocking($this -> fd, $isBlock)) {
+            $this -> isBlock = $isBlock;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -102,8 +123,8 @@ class Fifo
      * @return [type] [description]
      */
     public function close() {
-        if (is_resource($this -> fp)) {
-            fclose($this -> fp);
+        if (is_resource($this -> fd)) {
+            fclose($this -> fd);
         }
     }
 
