@@ -136,6 +136,14 @@ class Fifo
         return unlink($this -> name);
     }
 
+    /**
+     * return fd
+     * @return [type] [description]
+     */
+    public function getFd() {
+        return $this -> fd;
+    }
+
     public function __destruct() {
         $this -> close();
     }
